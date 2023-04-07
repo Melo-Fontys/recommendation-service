@@ -15,11 +15,13 @@ app.get('/recommendations', (req, res) => {
     res.send(recommendations)
 })
 
-app.post('/recommendations', async(req, res) => {
+app.post('/recommendations', async (req, res) => {
     const id = randomBytes(4).toString('hex');
     const {title} = req.body;
 
     recommendations[id] = {id, title};
+
+    console.log(req.body)
 
     await axios.post("http://localhost:8005/events", {
         type: "RecommendationCreated",
@@ -28,13 +30,14 @@ app.post('/recommendations', async(req, res) => {
         }
     })
 
+
     res.status(201).send(recommendations[id])
 })
 
-app.post('/events', (req, res) =>{
-   console.log("Event received", req.body.type);
+app.post('/events', (req, res) => {
+    console.log("Event received", req.body.type);
 
-   res.send({})
+    res.send({})
 });
 
 app.listen(8000, () => {
