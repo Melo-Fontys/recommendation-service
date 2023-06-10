@@ -1,45 +1,54 @@
 const express = require("express")
-const {randomBytes} = require('crypto')
-const bodyParser = require("body-parser")
-const {post} = require("axios");
 const cors = require("cors");
 const app = express();
-const axios = require("axios");
 
-app.use(bodyParser.json())
+// parse requests of content-type - application/json
+app.use(express.json());
+
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
 app.use(cors())
 
-const recommendations = {};
-
-app.get('/recommendations', (req, res) => {
-    res.send(recommendations)
-})
-
-app.post('/recommendations', async (req, res) => {
-    const id = randomBytes(4).toString('hex');
-    const {title} = req.body;
-
-    recommendations[id] = {id, title};
-
-    console.log(req.body)
-
-    await axios.post("http://localhost:8005/events", {
-        type: "RecommendationCreated",
-        data: {
-            id, title
-        }
+const db = require("./models");
+db.sequelize.sync()
+    .then(() => {
+        console.log("Synced db.");
     })
+    .catch((err) => {
+        console.log("Failed to sync db: " + err.message);
+    });
 
+require("./routes/recommendation.routes")(app);
 
-    res.status(201).send(recommendations[id])
-})
+// app.get('/recommendations', (req, res) => {
+//     res.send(recommendations)
+// })
+//
+// app.post('/recommendations', async (req, res) => {
+//     const id = randomBytes(4).toString('hex');
+//     const {title, description, selectedSong} = req.body;
+//
+//     recommendations[id] = {id, title, description, selectedSong};
+//
+//     await axios.post("http://localhost:8005/events", {
+//         type: "RecommendationCreated",
+//         data: {
+//             id, title, description, selectedSong
+//         }
+//     })
+//
+//     // writeRecommendationsData(id, title)
+//
+//     res.status(201).send(recommendations[id])
+// })
+//
+// app.post('/events', (req, res) => {
+//     console.log("Event received", req.body.type);
+//
+//     res.send({})
+// });
 
-app.post('/events', (req, res) => {
-    console.log("Event received", req.body.type);
-
-    res.send({})
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}.`);
 });
-
-app.listen(8000, () => {
-    console.log("Listening on 8000")
-})
