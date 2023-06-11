@@ -10,6 +10,9 @@ module.exports = app => {
     // Retrieve all Recommendations
     router.get("/", recommendations.findAll);
 
+    // Retrieve all Recommendations from one user
+    router.get("/users/:id", recommendations.findAllUser);
+
     // Retrieve all published Recommendations
     router.get("/published", recommendations.findAllPublished);
 

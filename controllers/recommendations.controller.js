@@ -35,14 +35,29 @@ exports.create = (req, res) => {
 exports.findAll = (req, res) => {
     Recommendation.findAll()
         .then(data => {
-            console.log(data)
-
             res.send(data);
         })
         .catch(err => {
             res.status(500).send({
                 message:
                     err.message || "Some error occurred while retrieving tutorials."
+            });
+        });
+};
+
+exports.findAllUser = (req, res) => {
+    const user_id = req.params.id;
+
+    Recommendation.findAll({
+        where: {user_id: user_id},
+    })
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while removing all recommendations."
             });
         });
 };
@@ -67,7 +82,7 @@ exports.update = (req, res) => {
     const id = req.params.id;
 
     Recommendation.update(req.body, {
-        where: { id: id }
+        where: {id: id}
     })
         .then(num => {
             if (num === 1) {
@@ -92,7 +107,7 @@ exports.delete = (req, res) => {
     const id = req.params.id;
 
     Recommendation.destroy({
-        where: { id: id }
+        where: {id: id}
     })
         .then(num => {
             if (num === 1) {
@@ -119,7 +134,7 @@ exports.deleteAll = (req, res) => {
         truncate: false
     })
         .then(nums => {
-            res.send({ message: `${nums} recommendations were deleted successfully!` });
+            res.send({message: `${nums} recommendations were deleted successfully!`});
         })
         .catch(err => {
             res.status(500).send({
@@ -131,14 +146,14 @@ exports.deleteAll = (req, res) => {
 
 // Delete all Recommendations from the database.
 exports.deleteAllUser = (req, res) => {
-    const user_id = req.params.user_id;
+    const user_id = req.params.id;
 
     Recommendation.destroy({
-        where: {userId: user_id},
+        where: {user_id: user_id},
         truncate: false
     })
         .then(nums => {
-            res.send({ message: `${nums} recommendations were deleted successfully!` });
+            res.send({message: `${nums} recommendations were deleted successfully!`});
         })
         .catch(err => {
             res.status(500).send({
@@ -150,7 +165,7 @@ exports.deleteAllUser = (req, res) => {
 
 // find all published Recommendation
 exports.findAllPublished = (req, res) => {
-    Recommendation.findAll({ where: { published: true } })
+    Recommendation.findAll({where: {published: true}})
         .then(data => {
             res.send(data);
         })
